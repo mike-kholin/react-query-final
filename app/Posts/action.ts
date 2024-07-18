@@ -1,74 +1,55 @@
 "use server";
 
 import prisma from "@/prisma/db";
-import { NextRequest, NextResponse } from "next/server";
+import axios from "axios";
 import { z } from "zod";
 
-interface prevStateType {
-  error?: {
+interface state {
+  errors?: {
     title?: string[];
     description?: string[];
   };
   message?: string | null;
 }
-
-const PostSchema = z.object({
+const postSchema = z.object({
   title: z.string(),
   description: z.string(),
 });
 
-type PostType = z.infer<typeof PostSchema>;
-
-type post = Partial<PostType>;
-
-export async function newPost(
-  formData: FormData,
-  prevState: prevStateType | undefined
+export async function CreatePost(
+  prevState: state | undefined,
+  formData: FormData
 ) {
-  try {
-    const validation = PostSchema.safeParse({
-      title: formData.get("title"),
-      description: formData.get("description"),
-    });
+  const validation = postSchema.safeParse({
+    title: formData.get("title"),
+    description: formData.get("description"),
+  });
 
-    if (!validation.success) {
-      const errors = validation.error.flatten().fieldErrors;
-      const State: prevStateType = {
-        error: {
-          title: errors.title,
-          description: errors.description,
-        },
-        message: "something went wrong",
-      };
-      return State;
-    } else {
-      // possibly put the post here
-      const { title, description } = validation.data;
-      try {
-        const newPost = await prisma.post.create({
-          data: {
-            title,
-            description,
-          },
-        });
-        return NextResponse.json(newPost, { status: 201 });
-      } catch (error) {
-        console.log(error);
-      }
-      //end of api
-    }
-  } catch (error) {
-    console.log(error);
+  if (!validation.success) {
+    return {
+      errors: validation.error.flatten().fieldErrors,
+      message: "failed",
+    };
   }
+  const { title, description } = validation.data;
+
+  try {
+    const newData = await prisma.post.create({
+      data: {
+        title,
+        description,
+      },
+    });
+    return { message: "success", newData };
+  } catch (error) {
+    return {
+      message: "failed",
+      errors: {
+        title: ["Failed to create post"],
+        description: ["Failed to create post"],
+      },
+    };
+  }
+
+  return { message: "success" };
 }
-
-// export async function POST(request: NextRequest) {
-//   const body = await request.json();
-//   const validation = PostSchema.safeParse(body);
-
-//   if (!validation.success)
-//     return NextResponse.json(
-//       { error: "somerhing went wrong" },
-//       { status: 400 }
-//     );
-// }

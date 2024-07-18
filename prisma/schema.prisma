@@ -23,7 +23,7 @@ model Product {
 }
 
 model Post {
-  id          Int    @id @default(autoincrement())
-  title       String
-  description String
+  id          Int     @id @default(autoincrement())
+  title       String?
+  description String?
 }
