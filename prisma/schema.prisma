@@ -21,3 +21,9 @@ model Product {
   category    String?
   inStock     Int?
 }
+
+model Post {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+}
