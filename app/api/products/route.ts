@@ -1,5 +1,4 @@
 import prisma from "@/prisma/db";
-import { productSchema } from "@/validators/product";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {

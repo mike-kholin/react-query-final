@@ -12,8 +12,8 @@ interface Product {
 type ProductSchema = Partial<Product>;
 
 const fetchProducts = async (): Promise<ProductSchema[]> => {
-  const products = await axios.get<ProductSchema[]>("/api/products");
-  return products.data;
+  const response = await axios.get<ProductSchema[]>("/api/products");
+  return response.data;
 };
 
 export function useProducts(): UseQueryResult<ProductSchema[], Error> {
