@@ -1,7 +1,7 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import React from "react";
-import { z } from "zod";
+
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import axios from "axios";
 
 interface Product {
   title: string;
@@ -9,14 +9,42 @@ interface Product {
   price: number;
 }
 
-export type ProductSchema = Partial<Product>;
+type ProductSchema = Partial<Product>;
 
-const fetchProducts =async () = >{
+const fetchProducts = async (): Promise<ProductSchema[]> => {
+  const products = await axios.get<ProductSchema[]>("/api/products");
+  return products.data;
+};
 
+export function useProducts(): UseQueryResult<ProductSchema[], Error> {
+  return useQuery<ProductSchema[], Error, ProductSchema[], [string]>({
+    queryKey: ["product"],
+    queryFn: fetchProducts,
+  });
 }
 
 const page = () => {
-  return <div>page</div>;
+  const { data, error, isLoading } = useProducts();
+  return (
+    <div>
+      <div className="text-black">{isLoading && <p>loading</p>}</div>
+      <ul>
+        {data?.map((item, index) => (
+          <>
+            <li key={index} className="text-black">
+              {item.title}
+            </li>
+            <li key={index} className="text-black">
+              {item.description}
+            </li>
+            <li key={index} className="text-black">
+              {item.price}
+            </li>
+          </>
+        ))}
+      </ul>
+    </div>
+  );
 };
 
 export default page;
