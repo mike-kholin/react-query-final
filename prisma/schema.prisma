@@ -40,3 +40,8 @@ model Student {
   name    String
   subject String?
 }
+
+model Todos {
+  id   Int    @id @default(autoincrement())
+  task String
+}
