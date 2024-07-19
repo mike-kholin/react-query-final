@@ -65,7 +65,6 @@ const FormPage = () => {
   const tweetSubmit = async (data: tweetSchemaType) => {
     mutation.mutate(data);
   };
-
   return (
     <Form {...form}>
       <form className="space-y-2" onSubmit={form.handleSubmit(tweetSubmit)}>
