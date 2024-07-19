@@ -17,7 +17,7 @@ const tweetSchema = z.object({
   message: z.string().optional(),
 });
 
-export async function Tweet(
+export async function TweetAction(
   prevState: prevState | undefined,
   formData: FormData
 ) {
