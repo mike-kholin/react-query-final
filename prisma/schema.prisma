@@ -34,3 +34,9 @@ model Tweet {
   name    String
   handle  String
 }
+
+model Student {
+  id      Int     @id @default(autoincrement())
+  name    String
+  subject String?
+}
