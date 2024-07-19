@@ -7,16 +7,19 @@ import { Tweet } from "@prisma/client";
 import FormPage from "./_components/Form";
 
 const page = () => {
-  const queryClient = useQueryClient();
-
   const getTweets = async (): Promise<Tweet[]> => {
     const response = await axios.get<Tweet[]>("/api/Tweets");
     return response.data;
   };
-  const { data: results } = useQuery<Tweet[], Error, Tweet[], [string]>({
-    queryKey: ["tweet"],
-    queryFn: getTweets,
-  });
+
+  const useTweets = () => {
+    return useQuery<Tweet[], Error, Tweet[], [string]>({
+      queryKey: ["tweet"],
+      queryFn: getTweets,
+    });
+  };
+
+  const { data: results } = useTweets();
 
   return (
     <>
