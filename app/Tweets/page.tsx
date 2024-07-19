@@ -2,7 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -12,8 +19,8 @@ import { Tweet } from "./action";
 import toast, { Toaster } from "react-hot-toast";
 
 const tweetSchema = z.object({
-  name: z.string(),
-  handle: z.string(),
+  name: z.string().min(1, { message: "Field is required" }),
+  handle: z.string().min(1, { message: "Field is required" }),
   message: z.string().optional(),
 });
 
@@ -34,8 +41,8 @@ const page = () => {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
-        toast.success("tweet sent");
       });
+      toast.success("tweet sent");
       const results = await Tweet(undefined, formData);
       if (results.errors) {
         Object.entries(results.errors).forEach(([key, value]) => {
@@ -63,9 +70,13 @@ const page = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>User Name:</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.name?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -74,9 +85,13 @@ const page = () => {
               name="handle"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>handle:</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.handle?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />
@@ -85,9 +100,13 @@ const page = () => {
               name="message"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>message:</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} className="h-[50px] " />
                   </FormControl>
+                  <FormMessage>
+                    {form.formState.errors.message?.message}
+                  </FormMessage>
                 </FormItem>
               )}
             />

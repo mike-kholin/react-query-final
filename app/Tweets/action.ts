@@ -12,8 +12,8 @@ interface prevState {
 }
 
 const tweetSchema = z.object({
-  name: z.string(),
-  handle: z.string(),
+  name: z.string().min(1, { message: "Field is required" }),
+  handle: z.string().min(1, { message: "Field is required" }),
   message: z.string().optional(),
 });
 
