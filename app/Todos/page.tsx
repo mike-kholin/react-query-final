@@ -9,6 +9,10 @@ interface TodoSchema {
   task: string;
 }
 
+type mutationContext = {
+  previousTodo: TodoSchema | undefined;
+};
+
 const page = () => {
   const [task, setTask] = useState("");
   const queryClient = useQueryClient();
@@ -22,9 +26,9 @@ const page = () => {
     });
     return response.data;
   };
-  const mutation = useMutation({
+  const mutation = useMutation<TodoSchema, Error, TodoSchema, mutationContext>({
     mutationFn: makeTodo,
-    onMutate: async (newTodo: TodoSchema) => {
+    onMutate: async (newTodo: TodoSchema): Promise<mutationContext> => {
       await queryClient.cancelQueries({ queryKey: ["todos"] });
       const previousTodo = queryClient.getQueryData<TodoSchema>(["todos"]);
       queryClient.setQueryData<TodoSchema[]>(["todos"], (old = []) => [
