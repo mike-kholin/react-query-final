@@ -27,12 +27,15 @@ import { ImSpinner2 } from "react-icons/im";
 import { headers } from "next/headers";
 import toast, { Toaster } from "react-hot-toast";
 
+type final = z.infer<typeof patient2>;
 const patient2 = z.object({
   name: z.string(),
   disease: z.string(),
 });
 
-type final = z.infer<typeof patient2>;
+interface mutationContext {
+  prevTodo: final | undefined;
+}
 
 const getPatients = async (): Promise<Patient[]> => {
   const results = (await axios.get<Patient[]>("/api/patients")).data;
@@ -56,13 +59,12 @@ const page = () => {
     },
   });
 
-  const mutes = useMutation<final, AxiosError, final, unknown>({
+  const mutes = useMutation<final, Error, final, mutationContext>({
     mutationFn: async (data) => {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
         formData.append(key, value);
       });
-
       const response = await axios.post("/api/patients", formData, {
         headers: {
           "Content-Type": "multipart/formdata",
@@ -70,11 +72,29 @@ const page = () => {
       });
       return response.data;
     },
-
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["patient"] });
-      toast.success("hurray");
+      toast.success("hurray from mutation function");
       form.reset();
+    },
+    onMutate: async (data): Promise<mutationContext> => {
+      await queryClient.cancelQueries({ queryKey: ["patient"] });
+      const prevTodo = queryClient.getQueryData<final>(["patient"]);
+      queryClient.setQueryData<final[]>(["patient"], (old = []) => [
+        ...old,
+        { ...data },
+      ]);
+      toast.success("hurray from cancelling outgoing query");
+      return { prevTodo };
+    },
+
+    onError: (error, data, context) => {
+      queryClient.setQueryData(["patient"], context?.prevTodo);
+      toast.error("oops from on Error");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["patient"] });
+      toast.success("hurray from onsettled");
     },
   });
 
